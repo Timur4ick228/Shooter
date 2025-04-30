@@ -15,20 +15,45 @@ class GameSprite(sprite.Sprite):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
 def init_game():
-    global lost, score, countFire, hero, hero2, bullets, monsters, asteroids, finish
+    global lost, score, countFire, hero, hero2, bullets, monsters, asteroids, current_level_index, finish
     lost = 0
     score = 0
     countFire = 0
+    current_level_index = 0
     finish = False
     hero = Player('mm.png', 20, 420, 10)
     hero2 = Player('biger.png', 400, 420, 10, 5, 2)
     bullets = sprite.Group()
     monsters = sprite.Group()
-    for i in range(1, 5):
-        monsters.add(Enemy('cat.png', 260, 30, 3))
+    level_data = levels[current_level_index]
+    for i in range(level_data["enemy_count"]//2):
+        monsters.add(Enemy('cat.png', randint(0, 500), 0, randint(1,4)))
     asteroids = sprite.Group()
-    for i in range(1, 3):
-        asteroids.add(Enemy2('asteroid.png', 160, 10, 3))
+    for i in range(level_data["enemy_count"]//2):
+        asteroids.add(Enemy2('asteroid.png', randint(0, 500), 0, randint(1,4)))
+
+levels = [
+    {"enemy_count": 10},
+    {"enemy_count": 20},
+    {"enemy_count": 30}
+]
+
+def load_level(level_index):
+    global monsters, score
+    monsters.empty()
+    score = 0
+
+    level_data = levels[level_index]
+    for _ in range(level_data["enemy_count"]//2):
+        monsters.add(Enemy('cat.png', randint(100, 500), 0, randint(1,4)))
+    for _ in range(level_data["enemy_count"]//2):
+        monsters.add(Enemy2('asteroid.png', randint(100, 500), 0, randint(1,4)))
+
+def check_level_complete(level_index):
+    level_data = levels[level_index]
+    return score == level_data["enemy_count"]
+
+
 
 class Player(GameSprite):
     def __init__(self, filename, x, y, speed, life=5, type_=1, sizeX=85, sizeY=85):
@@ -119,12 +144,19 @@ font.init()
 font1 = font.SysFont('Arial', 36)
 font2 = font.SysFont('Arial', 80)
 init_game()
+load_level(current_level_index)
 while game:
 
     text_score = font1.render('Счет:' + str(score), 1, (255, 255, 255))
     text_lose = font1.render('Пропущено:' + str(lost), 1 , (255, 255, 255))
     win = font2.render("YOU WIN", True, (0, 255, 0))
     lose = font2.render("YOU LOSE!", True, (0, 206, 209))
+    if check_level_complete(current_level_index):
+        current_level_index += 1
+
+        if current_level_index < len(levels):
+            load_level(current_level_index)
+            
     for e in event.get():
         if e.type == QUIT:
             game = False
@@ -162,7 +194,7 @@ while game:
             finish = True
             window.blit(lose, (200, 200))
             
-        if score == 20:
+        if score == levels:
             finish = True
             window.blit(win, (200, 200))
     clock.tick(60)
