@@ -21,13 +21,13 @@ def init_game():
     countFire = 0
     current_level_index = 0
     finish = False
-    hero = Player('mm.png', 20, 420, 10)
-    hero2 = Player('biger.png', 400, 420, 10, 5, 2)
+    hero = Player('pngegg.png', 20, 420, 10)
+    hero2 = Player('jan.png', 400, 420, 10, 5, 2)
     bullets = sprite.Group()
     monsters = sprite.Group()
     level_data = levels[current_level_index]
     for i in range(level_data["enemy_count"]//2):
-        monsters.add(Enemy('cat.png', randint(0, 500), 0, randint(1,4)))
+        monsters.add(Enemy('cati.png', randint(0, 500), 0, randint(1,4)))
     asteroids = sprite.Group()
     for i in range(level_data["enemy_count"]//2):
         asteroids.add(Enemy2('asteroid.png', randint(0, 500), 0, randint(1,4)))
@@ -41,15 +41,21 @@ levels = [
 def load_level(level_index):
     global monsters, score
     monsters.empty()
+    asteroids.empty()
     score = 0
 
     level_data = levels[level_index]
     for _ in range(level_data["enemy_count"]//2):
-        monsters.add(Enemy('cat.png', randint(100, 500), 0, randint(1,4)))
+        monsters.add(Enemy('cati.png', randint(100, 500), 0, randint(1,4)))
     for _ in range(level_data["enemy_count"]//2):
         monsters.add(Enemy2('asteroid.png', randint(100, 500), 0, randint(1,4)))
 
 def check_level_complete(level_index):
+    if level_index > len(levels)-1:
+        global finish
+        finish = True
+        window.blit(font2.render("YOU WIN", True, (0, 255, 0)),(200,200))
+        return True
     level_data = levels[level_index]
     return score == level_data["enemy_count"]
 
@@ -77,12 +83,12 @@ class Player(GameSprite):
         keys_pressed = key.get_pressed()
         if self.type == 1:
             if keys_pressed[K_SPACE] and countFire > 10:
-                bullets.add(Bullet('bullet2.png', self.rect.x, self.rect.y, 5, 90, 40))
+                bullets.add(Bullet('bullet.png', self.rect.x, self.rect.y, 5, 30, 40))
                 countFire = 0
             countFire += 1
         else:
             if keys_pressed[K_UP] and countFire > 30:
-                bullets.add(Bullet('bullet2.png', self.rect.x, self.rect.y, 5, 90, 40))
+                bullets.add(Bullet('bullet.png', self.rect.x, self.rect.y, 5, 30, 40))
                 countFire = 0
             countFire += 1
 
@@ -184,13 +190,13 @@ while game:
         collides = sprite.groupcollide(monsters, bullets, True, True)
         for c in collides:
             score = score + 1
-            monster = Enemy('cat.png', randint(80, 620), - 40, randint(1, 3), 85, 85)
+            monster = Enemy('cati.png', randint(80, 620), - 40, randint(1, 3), 120, 100)
             monsters.add(monster)
             if sprite.spritecollide(hero, monsters, False) or sprite.spritecollide(hero2, monsters, False):
                 sprite.spritecollide(hero, monsters, True) or sprite.spritecollide(hero2, monsters, True)
                 
 
-        if lost >= 10 or hero.life <= 0:
+        if lost >= 20 or hero.life <= 0:
             finish = True
             window.blit(lose, (200, 200))
             
